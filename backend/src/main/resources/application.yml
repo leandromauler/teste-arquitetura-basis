@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/saude
+    username: saude
+    password: saude
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  sql:
+    init:
+      mode: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+rnds:
+  base-url: https://rnds-homolog.example.gov.br
+  ssl:
+    client-keystore: file:/secrets/rnds_client.p12
+    client-password: changeit
+    truststore: file:/secrets/rnds_truststore.jks
+    truststore-password: changeit

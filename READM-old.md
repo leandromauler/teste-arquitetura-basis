@@ -203,7 +203,8 @@ services:
 ---
 
 ### Referências rápidas no repositório
-- **Diagrama draw.io**: `docs/diagramas/arquitetura.drawio`  
+- **Diagrama draw.io**: `docs/diagrams/arquitetura.drawio`  
+- **Documento de arquitetura**: `docs/architecture.md`  
 - **POC Backend**: `backend/` (Java 21 + Spring Boot + Postgres/Redis)  
 - **POC Frontend**: `frontend/saude-web` (Angular 17)
 

@@ -1,0 +1,123 @@
+openapi: 3.0.3
+info:
+  title: Saúde API — POC RNDS
+  version: v1
+  description: |
+    Documentação estática para a POC (Java 21 + Spring Boot).
+    Endpoints principais: healthcheck e envio de Immunization (FHIR) para RNDS fake.
+servers:
+  - url: http://localhost:8080
+    description: Dev Local
+tags:
+  - name: Health
+  - name: Immunizations
+  - name: RNDS Fake
+paths:
+  /api/v1/health:
+    get:
+      tags: [Health]
+      summary: Healthcheck simples
+      operationId: getHealth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  service:
+                    type: string
+                    example: teste-backend
+  /api/v1/immunizations:
+    post:
+      tags: [Immunizations]
+      summary: Envia um recurso FHIR Immunization para a RNDS (simulada)
+      operationId: postImmunization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Immunization'
+            examples:
+              exemplo:
+                value:
+                  resourceType: Immunization
+                  status: completed
+                  vaccineCode:
+                    coding:
+                      - system: http://hl7.org/fhir/sid/cvx
+                        code: '207'
+                  occurrenceDateTime: '2024-01-01'
+                  lotNumber: LOTE-123
+                  patient:
+                    display: Maria da Silva
+      responses:
+        '202':
+          description: Aceito para processamento
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitResponse'
+        '400':
+          description: Requisição inválida
+        '500':
+          description: Erro interno
+  /rnds-fake/Immunization:
+    post:
+      tags: [RNDS Fake]
+      summary: Endpoint simulado da RNDS para Immunization
+      operationId: rndsFakeImmunization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Immunization'
+      responses:
+        '200':
+          description: ACK simulado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AckResponse'
+components:
+  schemas:
+    Immunization:
+      type: object
+      description: |
+        Recurso FHIR R4 Immunization (representado aqui como objeto genérico).
+        Para validação completa, usar profiles FHIR e um validador (ex.: HAPI FHIR).
+      additionalProperties: true
+      properties:
+        resourceType:
+          type: string
+          enum: [Immunization]
+    AckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ACCEPTED, REJECTED]
+        ackId:
+          type: string
+          description: Identificador de ack simulado
+        receivedAt:
+          type: integer
+          format: int64
+          description: Epoch millis de recebimento
+    SubmitResponse:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          format: uuid
+        ack:
+          $ref: '#/components/schemas/AckResponse'
+        finalStatus:
+          type: string
+          description: Status final da operação (ex.: ACCEPTED ou REJECTED)
